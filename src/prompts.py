@@ -1,5 +1,5 @@
 # TOEIC Part 1の問題を生成するためのプロンプト
-GENERATE_TOEIC_QUESTION_PROMPT =  """
+GENERATE_TOEIC_QUESTION_PROMPT = """
     Create a high-quality TOEIC Part 1 question in JSON format. The question should be based on a realistic and detailed scene description, with a clear corresponding question. Provide four distinct and plausible options, and indicate the correct answer. Ensure that the correct answer is the only possible interpretation based on the scene description. The JSON should have the following structure:
 
     {
@@ -13,7 +13,7 @@ GENERATE_TOEIC_QUESTION_PROMPT =  """
         },
         "answer": "The correct answer from the options provided"
     }
-    
+
     Example of a high-quality TOEIC Part 1 question:
 
     {
@@ -28,5 +28,5 @@ GENERATE_TOEIC_QUESTION_PROMPT =  """
         "answer": "B"
     }
 
-    Please generate a similar question following this structure and quality.
+    Ensure that the response is in valid JSON format. Do not include any additional text outside the JSON structure.
     """
