@@ -2,10 +2,7 @@ import os
 import openai
 import json
 import prompts
-from config import load_settings
 from output_dir_manager import OutputDirManager
-
-app_settings = load_settings("settings.toml").app
 
 
 def main():
