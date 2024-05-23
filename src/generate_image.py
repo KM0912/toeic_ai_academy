@@ -1,4 +1,40 @@
+import os
 import openai
+import json
+from download_image import download_image
+from output_dir_manager import OutputDirManager
+
+
+def main():
+    """
+    画像を生成する。
+    """
+    output_dir_manager = OutputDirManager()
+    active_dirs = output_dir_manager.get_active_dirs()
+
+    for dir_name in active_dirs:
+        # ディレクトリ内にすでに画像が生成されている場合はスキップ
+        dir = os.path.join(
+            output_dir_manager.OUTPUT_DIR, output_dir_manager.ACTIVE_DIR, dir_name
+        )
+        image_file = os.path.join(dir, "image.png")
+        if os.path.exists(image_file):
+            print(f"Image already exists in {dir}. Skipping...")
+            continue
+
+        question_file = os.path.join(dir, "question.json")
+        with open(question_file, "r") as f:
+            # プロンプトの生成
+            data = json.load(f)
+            dalle_prompt = create_dalle_prompt(data)
+
+            # 画像の生成
+            image_url = generate_image(dalle_prompt)
+
+        # 画像の保存
+        download_image(image_url, image_file)
+
+    print("Generated images.")
 
 
 def generate_image(prompt):
@@ -57,3 +93,7 @@ def create_dalle_prompt(data):
     """
 
     return prompt.strip()
+
+
+if __name__ == "__main__":
+    main()
