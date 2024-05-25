@@ -57,7 +57,6 @@ def create_dalle_prompt(data):
     指定されたJSONデータをもとにDALL-Eの画像生成プロンプトを作成する。
     """
     description = data["description"]
-    question = data["question"]
     options = data["options"]
     answer = data["answer"]
 
@@ -65,30 +64,32 @@ def create_dalle_prompt(data):
     options_text = "\n".join([f"    {v}) {options[v]}" for k, v in enumerate(options)])
 
     prompt = f"""
-    あなたはTOEIC Part 1のリスニング問題のための画像を作成しています。以下の説明に基づいて、質の高い画像を生成してください。
+    あなたはTOEIC Part 1のリスニング問題のための画像を作成しています。以下の説明に基づいて、日常のシーンをリアルに描写した画像を生成してください。
 
     説明: {description}
 
-    画像の内容は、次の選択肢のいずれかに関連するものにしてください。ただし、1つの選択肢が正解であることが明確にわかるようにしてください。
+    画像の内容は次の選択肢のいずれかに関連するものにしてください。ただし、正解の選択肢が明確にわかるようにしてください。
 
     選択肢:
     {options_text}
 
     正解: {answer}
 
-    画像は以下の要件を満たすようにしてください：
-    - 描写が詳細で、シーンが明確に伝わること
-    - 正解の選択肢が一目でわかるようにすること
-    - 他の選択肢も考慮し、それらが関連する要素を含むこと
-    - 自然な日常のシーンをリアルに表現すること
+    画像の要件:
+    - 画像は詳細で、説明されたシーンが明確に描写されていること。
+    - 正解の選択肢が画像から一目でわかるようにすること。
+    - 他の選択肢も考慮するが、正解の選択肢だけが明確に描かれていること。
+    - 日常のシーンをリアルに自然に表現すること。
+    - 画像にテキストや選択肢を含めないこと。
+    - 画像は白黒にすること。
 
     例:
-    説明: 男性が公園のベンチに座って本を読んでいる。彼の前には鳥が餌をついばみ、後ろの道には数人が歩いている。
+    説明:  A man is sitting on a bench in a park, reading a book. Birds are feeding on the ground in front of him, and a few people are walking on the path behind him.
     選択肢:
-    A) 彼は寝ている
-    B) 彼は本を読んでいる
-    C) 彼は鳥に餌をやっている
-    D) 彼は道を歩いている
+    A) He is sleeping
+    B) He is reading a book
+    C) He is feeding the birds
+    D) He is walking on the path
     正解: B
     """
 
