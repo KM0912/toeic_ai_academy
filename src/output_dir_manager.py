@@ -6,6 +6,18 @@ class OutputDirManager:
     ACTIVE_DIR = "active"
     ARCHIVE_DIR = "archive"
 
+    # 出力する問題文のファイル名
+    QUESTION_FILE = "question.json"
+
+    def get_active_dir_path(self):
+        """
+        activeディレクトリのパスを取得する
+
+        Returns:
+            str: activeディレクトリのパス
+        """
+        return os.path.join(self.OUTPUT_DIR, self.ACTIVE_DIR)
+
     def get_active_dirs(self):
         """
         activeディレクトリ内のディレクトリ名をすべて取得する
