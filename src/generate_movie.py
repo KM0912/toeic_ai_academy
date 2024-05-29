@@ -1,4 +1,5 @@
 import os
+import sys
 from moviepy.editor import (
     ImageClip,
     AudioFileClip,
@@ -7,18 +8,19 @@ from moviepy.editor import (
 )
 from output_dir_manager import OutputDirManager
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from settings import TARGET_SIZE
+
+
 # スクリプトのディレクトリを取得
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# 生成する動画のサイズ
-target_size = (1920, 1080)
 
 
 def main():
     generate_movie()
 
 
-def generate_clip(image, question_audio, options_audio):
+def generate_clip(image, question_audio, options_audio) -> ImageClip:
     """
     画像と音声を結合して動画クリップを生成する。
 
@@ -28,31 +30,17 @@ def generate_clip(image, question_audio, options_audio):
         options_audio (str): 選択肢の音声ファイルのパス
     """
 
-    # 音声ファイルの長さを取得
-    question_clip_duration = AudioFileClip(question_audio).duration
-    options_clip_duration = AudioFileClip(options_audio).duration
+    # 音声ファイルを作成
+    audio_clip = generate_audio_clip(question_audio, options_audio)
 
-    # 画像クリップを作成
-    img_clip = ImageClip(image).set_duration(
-        question_clip_duration + options_clip_duration
-    )
-
-    # 画像クリップを目標サイズにパディング
-    img_clip = img_clip.margin(
-        top=(target_size[1] - img_clip.h) // 2,
-        bottom=(target_size[1] - img_clip.h) // 2,
-        left=(target_size[0] - img_clip.w) // 2,
-        right=(target_size[0] - img_clip.w) // 2,
-        color=(0, 0, 0),
-    )
-
-    # 音声クリップを作成
-    question_clip = AudioFileClip(question_audio)
-    options_clip = AudioFileClip(options_audio)
-    audio_clip = concatenate_audioclips([question_clip, options_clip])
+    # 画像クリップを作成 (音声の長さに合わせる)
+    img_clip: ImageClip = ImageClip(image).set_duration(audio_clip.duration)
 
     # 画像クリップに音声を追加
     img_clip = img_clip.set_audio(audio_clip)
+
+    # 画像クリップを目標サイズにパディング
+    img_clip = adjust_image_clip_margin(img_clip, TARGET_SIZE)
 
     return img_clip
 
@@ -69,7 +57,7 @@ def generate_movie():
     # タイトル画像を作成
     title_image = "./title.png"
     title_clip = ImageClip(title_image).set_duration(3)
-    title_clip = title_clip.resize(newsize=target_size)
+    title_clip = title_clip.resize(newsize=TARGET_SIZE)
 
     video_clips = [title_clip]
 
@@ -91,7 +79,7 @@ def generate_movie():
     final_clip = concatenate_videoclips(video_clips)
 
     # 動画の解像度を設定（1920x1080）
-    final_clip = final_clip.resize(newsize=target_size)
+    final_clip = final_clip.resize(newsize=TARGET_SIZE)
 
     # 動画を書き出し
     # 出力ファイル名
@@ -99,6 +87,54 @@ def generate_movie():
     final_clip.write_videofile(output_file, codec="libx264", audio_codec="aac", fps=24)
 
     print(f"動画が正常に作成されました: {output_file}")
+
+
+def adjust_image_clip_margin(
+    img_clip: ImageClip, target_size: tuple[int, int]
+) -> ImageClip:
+    """
+    画像クリップのマージンを調整する。
+
+    Args:
+        img_clip (ImageClip): 画像クリップ
+        target_size (tuple[int, int]): 目標サイズ
+
+    Returns:
+        ImageClip: マージンが調整された画像クリップ
+    """
+    # 画像のサイズを取得
+    image_height = img_clip.h
+    image_width = img_clip.w
+
+    # 画像クリップを目標サイズにパディング
+    img_clip = img_clip.margin(
+        top=(target_size[1] - image_height) // 2,
+        bottom=(target_size[1] - image_height) // 2,
+        left=(target_size[0] - image_width) // 2,
+        right=(target_size[0] - image_width) // 2,
+        color=(0, 0, 0),
+    )
+
+    return img_clip
+
+
+def generate_audio_clip(question_audio, options_audio) -> AudioFileClip:
+    """
+    音声クリップを作成する。
+
+    Args:
+        question_audio (str): 問題文の音声ファイルのパス
+        options_audio (str): 選択肢の音声ファイルのパス
+
+    Returns:
+        AudioFileClip: 音声クリップ
+    """
+    question_clip = AudioFileClip(question_audio)
+    options_clip = AudioFileClip(options_audio)
+
+    audio_clip: AudioFileClip = concatenate_audioclips([question_clip, options_clip])
+
+    return audio_clip
 
 
 if __name__ == "__main__":
